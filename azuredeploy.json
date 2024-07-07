@@ -2,30 +2,52 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "name-of-storage-account": {
-            "type": "string",
+        "storageAccountNames": {
+            "type": "array",
             "metadata": {
-                "description": "Enter name of storage account"
+                "description": "Enter the array of storage account names"
+            }
+        },
+        "locations": {
+            "type": "array",
+            "metadata": {
+                "description": "Enter the array of storage account locations"
+            }
+        },
+        "sku": {
+            "type": "string",
+            "defaultValue": "Standard_LRS",
+            "allowedValues": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Premium_LRS",
+                "Standard_ZRS"
+            ],
+            "metadata": {
+                "description": "Enter the array of Sku"
             }
         }
+
     },
     "functions": [],
     "variables": {},
     "resources": [
         {
-            "name": "[parameters('name-of-storage-account')]",
+            "name": "[concat(parameters('storageAccountNames'))[copyIndex()]]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2023-01-01",
-            "tags": {
-                "displayName": "[parameters('name-of-storage-account')]"
-            },
-            "location": "[resourceGroup().location]",
+            "location": "[parameters('locations')[copyIndex()]]",
             "kind": "StorageV2",
             "sku": {
-                "name": "Premium_LRS",
-                "tier": "Premium"
+                "name": "[parameters('sku')]"
+               } ,
+                "properties": {},
+                "copy": {
+                "name": "storageAccountCopy",
+                "count": "[length(parameters('storageAccountNames'))]"
+                
+
             }
         }
-    ],
-    "outputs": {}
+    ]
 }
